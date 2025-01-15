@@ -28,10 +28,10 @@ COLUMNS = [
 ]
 
 connection_params = {
-      "account":  "ieb16950",
-      "user": "test",
-      "password": "BigBuildings25",
-      "role": "USERADMIN",
+      "account": st.secrets["ACCOUNT"],
+      "user": st.secrets["USER"],
+      "password": st.secrets["PASSWORD"],
+      "role": st.secrets["ROLE"],
       "database": CORTEX_SEARCH_DATABASE,
       "schema": CORTEX_SEARCH_SCHEMA,
       "warehouse": "COMPUTE_WH"
