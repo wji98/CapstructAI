@@ -1,0 +1,4 @@
+streamlit
+snowflake-snowpark
+snowflake-cortex 
+snowflake-core
