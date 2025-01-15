@@ -3,6 +3,7 @@ import streamlit as st # Import python packages
 from snowflake.snowpark import Session
 from snowflake.cortex import Complete
 from snowflake.core import Root
+from snowflake.connector import connect
 
 import pandas as pd
 import json
@@ -36,7 +37,11 @@ connection_params = {
       "schema": CORTEX_SEARCH_SCHEMA,
       "warehouse": "COMPUTE_WH"
     }
-session =  Session.builder.configs(connection_params).create()
+connection = connect(**CONNECTION_PARAMETERS)
+root = Root(connection)                         
+
+svc = root.databases[CORTEX_SEARCH_DATABASE].schemas[CORTEX_SEARCH_SCHEMA].cortex_search_services[CORTEX_SEARCH_SERVICE]
+#session =  Session.builder.configs(connection_params).create()
 #session = get_active_session()
 
 st.set_page_config(page_title=None, page_icon=None, layout="centered", initial_sidebar_state="expanded", menu_items=None) 
@@ -86,9 +91,6 @@ def get_similar_chunks_search_service(query):
     st.sidebar.text("Category")
     st.sidebar.caption(cat)
 
-    root = Root(session)                         
-
-    svc = root.databases[CORTEX_SEARCH_DATABASE].schemas[CORTEX_SEARCH_SCHEMA].cortex_search_services[CORTEX_SEARCH_SERVICE]
     if cat == "ALL":
         response = svc.search(query, COLUMNS, limit=NUM_CHUNKS)
     else:
