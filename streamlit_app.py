@@ -38,10 +38,6 @@ connection_params = {
     }
 session =  Session.builder.configs(connection_params).create()
 #session = get_active_session()
-root = Root(session)                         
-
-svc = root.databases[CORTEX_SEARCH_DATABASE].schemas[CORTEX_SEARCH_SCHEMA].cortex_search_services[CORTEX_SEARCH_SERVICE]
-
 
 st.set_page_config(page_title=None, page_icon=None, layout="centered", initial_sidebar_state="expanded", menu_items=None) 
 
@@ -89,7 +85,10 @@ def get_similar_chunks_search_service(query):
 
     st.sidebar.text("Category")
     st.sidebar.caption(cat)
-    
+
+    root = Root(session)                         
+
+    svc = root.databases[CORTEX_SEARCH_DATABASE].schemas[CORTEX_SEARCH_SCHEMA].cortex_search_services[CORTEX_SEARCH_SERVICE]
     if cat == "ALL":
         response = svc.search(query, COLUMNS, limit=NUM_CHUNKS)
     else:
