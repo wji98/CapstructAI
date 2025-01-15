@@ -45,15 +45,15 @@ debug = False
 
 def config_options():
 
-    categories = session.table('docs_chunks_table').select('category').distinct().collect()
+    #categories = session.table('docs_chunks_table').select('category').distinct().collect()
     
-    cat_list = []
-    for cat in categories:
-        cat_list.append(cat.CATEGORY)
+    #cat_list = []
+    #for cat in categories:
+    #    cat_list.append(cat.CATEGORY)
     
     st.sidebar.button("Start New Conversation (Clears Chat History)", key="clear_conversation", on_click=init_messages)
-    if debug:
-        st.sidebar.expander("Session State").write(st.session_state)
+    #if debug:
+    #    st.sidebar.expander("Session State").write(st.session_state)
 
 def init_messages():
 
