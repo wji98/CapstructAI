@@ -55,9 +55,10 @@ st.set_page_config(page_title=None, page_icon=None, layout="centered", initial_s
 
 debug = False
 
-@st.cache_resource
-def get_cortex_service():
-    session =  Session.builder.configs(connection_params).create()
+def initialize_snowpark_session():
+    if 'initialized' not in st.session_state or not st.session_state.initialized:
+        session =  Session.builder.configs(connection_params).create()
+        st.session_state.initialized = True
     
 def config_options():
 
@@ -252,7 +253,8 @@ def main():
     
     st.title("CapstructAI")
     st.subheader("Your Building Code and Construction Safety Assistant")
-    
+
+    initialize_snowpark_session()
     config_options()
     init_messages()
 
