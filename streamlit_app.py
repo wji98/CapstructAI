@@ -300,7 +300,8 @@ def main():
         
         st.session_state.messages.append({"role": "assistant", "content": response})
     # Display chat messages from history on app rerun
-    session.close()
+    
         
 if __name__ == "__main__":
     main()
+    session.close()
