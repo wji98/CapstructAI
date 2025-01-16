@@ -39,9 +39,10 @@ connection_params = {
     }
 #connection = connect(**connection_params)
 #root = Root(connection)                         
+session =  Session.builder.configs(connection_params).create()
+root = Root(session)
+svc = root.databases[CORTEX_SEARCH_DATABASE].schemas[CORTEX_SEARCH_SCHEMA].cortex_search_services[CORTEX_SEARCH_SERVICE]
 
-#svc = root.databases[CORTEX_SEARCH_DATABASE].schemas[CORTEX_SEARCH_SCHEMA].cortex_search_services[CORTEX_SEARCH_SERVICE]
-#session =  Session.builder.configs(connection_params).create()
 #session = get_active_session()
 
 st.set_page_config(page_title=None, page_icon=None, layout="centered", initial_sidebar_state="expanded", menu_items=None) 
@@ -67,9 +68,9 @@ def init_messages():
         st.session_state.messages = []
 
 def get_similar_chunks_search_service(query):
-    session =  Session.builder.configs(connection_params).create()
-    root = Root(session)                         
-    svc = root.databases[CORTEX_SEARCH_DATABASE].schemas[CORTEX_SEARCH_SCHEMA].cortex_search_services[CORTEX_SEARCH_SERVICE]
+    #session =  Session.builder.configs(connection_params).create()
+    #root = Root(session)                         
+    #svc = root.databases[CORTEX_SEARCH_DATABASE].schemas[CORTEX_SEARCH_SCHEMA].cortex_search_services[CORTEX_SEARCH_SERVICE]
     
     prompt = f"""
         Based on the QUESTION in between the <question> and </question> tags, if the user explicitly asks to search for a specific 
@@ -299,7 +300,7 @@ def main():
         
         st.session_state.messages.append({"role": "assistant", "content": response})
     # Display chat messages from history on app rerun
-    
+    session.close()
         
 if __name__ == "__main__":
     main()
