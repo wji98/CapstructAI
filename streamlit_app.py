@@ -38,12 +38,17 @@ connection_params = {
       "schema": CORTEX_SEARCH_SCHEMA,
       "warehouse": "COMPUTE_WH"
     }
+
+try:
+    session = get_active_session()
+except:
+    session =  Session.builder.configs(connection_params).create()
 #session =  Session.builder.configs(connection_params).create()
-#root = Root(session)                         
-#svc = root.databases[CORTEX_SEARCH_DATABASE].schemas[CORTEX_SEARCH_SCHEMA].cortex_search_services[CORTEX_SEARCH_SERVICE]
-#connection = connect(**connection_params)
-#root = Root(connection)
-#session = None
+root = Root(session)                         
+svc = root.databases[CORTEX_SEARCH_DATABASE].schemas[CORTEX_SEARCH_SCHEMA].cortex_search_services[CORTEX_SEARCH_SERVICE]
+# connection = connect(**connection_params)
+# root = Root(connection)
+# session = None
 #@st.cache_resource
 #def get_cortex_service():
 #    session =  Session.builder.configs(connection_params).create()
@@ -84,7 +89,7 @@ def init_messages():
     if st.session_state.clear_conversation or "messages" not in st.session_state:
         st.session_state.messages = []
 
-def get_similar_chunks_search_service(query, svc):
+def get_similar_chunks_search_service(query):
     #session =  Session.builder.configs(connection_params).create()
     #root = Root(session)                         
     #svc = root.databases[CORTEX_SEARCH_DATABASE].schemas[CORTEX_SEARCH_SCHEMA].cortex_search_services[CORTEX_SEARCH_SERVICE]
@@ -135,7 +140,7 @@ def get_chat_history():
 
     return chat_history
 
-def summarize_question_with_history(chat_history, question, svc):
+def summarize_question_with_history(chat_history, question):
 # To get the right context, use the LLM to first summarize the previous conversation
 # This will be used to get embeddings and find similar chunks in the docs for context
 
@@ -186,11 +191,11 @@ def optimize_query(chat_history, question):
     return sumary
     
     
-def create_prompt (myquestion, svc):
+def create_prompt (myquestion):
 
     chat_history = get_chat_history()
     optimized_query = optimize_query(chat_history, myquestion)
-    prompt_context = get_similar_chunks_search_service(optimized_query, svc)
+    prompt_context = get_similar_chunks_search_service(optimized_query)
     #chat_history = ""
     
     st.sidebar.text("Optimized query:")
@@ -232,9 +237,9 @@ def create_prompt (myquestion, svc):
 
     return prompt, relative_paths
 
-def answer_question(myquestion, svc):
+def answer_question(myquestion):
 
-    prompt, relative_paths =create_prompt (myquestion, svc)
+    prompt, relative_paths =create_prompt (myquestion)
     response = Complete('mistral-large2', prompt)
     
     #session.close()
@@ -264,9 +269,9 @@ def main():
     config_options()
     init_messages()
 
-    session = Session.builder.configs(connection_params).create()
-    root = Root(session)
-    svc = root.databases[CORTEX_SEARCH_DATABASE].schemas[CORTEX_SEARCH_SCHEMA].cortex_search_services[CORTEX_SEARCH_SERVICE]
+    #session = Session.builder.configs(connection_params).create()
+    #root = Root(session)
+    #svc = root.databases[CORTEX_SEARCH_DATABASE].schemas[CORTEX_SEARCH_SCHEMA].cortex_search_services[CORTEX_SEARCH_SERVICE]
     #connection = connect(**connection_params)
     
     with st.expander(label='Chat History'):
@@ -304,7 +309,7 @@ def main():
             question = question.replace("'","")
     
             with st.spinner("Thinking..."):
-                response, relative_paths = answer_question(question, svc)            
+                response, relative_paths = answer_question(question)            
                 response = response.replace("'", "")
                 message_placeholder.markdown(response)
 
@@ -321,7 +326,7 @@ def main():
         
         st.session_state.messages.append({"role": "assistant", "content": response})
     
-    session.close()
+    #session.close()
     # Display chat messages from history on app rerun
         
 if __name__ == "__main__":
