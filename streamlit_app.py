@@ -232,12 +232,8 @@ def create_prompt (myquestion, svc):
 
     return prompt, relative_paths
 
-def answer_question(myquestion):
+def answer_question(myquestion, svc):
 
-    session = Session.builder.configs(connection_params).create()
-    root = Root(session)
-    svc = root.databases[CORTEX_SEARCH_DATABASE].schemas[CORTEX_SEARCH_SCHEMA].cortex_search_services[CORTEX_SEARCH_SERVICE]
-    
     prompt, relative_paths =create_prompt (myquestion, svc)
     response = Complete('mistral-large2', prompt)
     
@@ -268,6 +264,9 @@ def main():
     config_options()
     init_messages()
 
+    session = Session.builder.configs(connection_params).create()
+    root = Root(session)
+    svc = root.databases[CORTEX_SEARCH_DATABASE].schemas[CORTEX_SEARCH_SCHEMA].cortex_search_services[CORTEX_SEARCH_SERVICE]
     #connection = connect(**connection_params)
     
     with st.expander(label='Chat History'):
@@ -305,7 +304,7 @@ def main():
             question = question.replace("'","")
     
             with st.spinner("Thinking..."):
-                response, relative_paths = answer_question(question)            
+                response, relative_paths = answer_question(question, svc)            
                 response = response.replace("'", "")
                 message_placeholder.markdown(response)
 
@@ -321,7 +320,8 @@ def main():
 
         
         st.session_state.messages.append({"role": "assistant", "content": response})
-    #session.close()
+    
+    session.close()
     # Display chat messages from history on app rerun
         
 if __name__ == "__main__":
