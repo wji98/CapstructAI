@@ -38,9 +38,9 @@ connection_params = {
       "schema": CORTEX_SEARCH_SCHEMA,
       "warehouse": "COMPUTE_WH"
     }
-session =  Session.builder.configs(connection_params).create()
-root = Root(session)                         
-svc = root.databases[CORTEX_SEARCH_DATABASE].schemas[CORTEX_SEARCH_SCHEMA].cortex_search_services[CORTEX_SEARCH_SERVICE]
+#session =  Session.builder.configs(connection_params).create()
+#root = Root(session)                         
+#svc = root.databases[CORTEX_SEARCH_DATABASE].schemas[CORTEX_SEARCH_SCHEMA].cortex_search_services[CORTEX_SEARCH_SERVICE]
 #connection = connect(**connection_params)
 #root = Root(connection)
 #session = None
@@ -135,7 +135,7 @@ def get_chat_history():
 
     return chat_history
 
-def summarize_question_with_history(chat_history, question):
+def summarize_question_with_history(chat_history, question, svc):
 # To get the right context, use the LLM to first summarize the previous conversation
 # This will be used to get embeddings and find similar chunks in the docs for context
 
@@ -186,11 +186,11 @@ def optimize_query(chat_history, question):
     return sumary
     
     
-def create_prompt (myquestion):
+def create_prompt (myquestion, svc):
 
     chat_history = get_chat_history()
     optimized_query = optimize_query(chat_history, myquestion)
-    prompt_context = get_similar_chunks_search_service(optimized_query)
+    prompt_context = get_similar_chunks_search_service(optimized_query, svc)
     #chat_history = ""
     
     st.sidebar.text("Optimized query:")
@@ -234,9 +234,13 @@ def create_prompt (myquestion):
 
 def answer_question(myquestion):
 
-    prompt, relative_paths =create_prompt (myquestion)
-
-    response = Complete('mistral-large2', prompt)   
+    session = Session.builder.configs(connection_params).create()
+    root = Root(session)
+    svc = root.databases[CORTEX_SEARCH_DATABASE].schemas[CORTEX_SEARCH_SCHEMA].cortex_search_services[CORTEX_SEARCH_SERVICE]
+    
+    prompt, relative_paths =create_prompt (myquestion, svc)
+    response = Complete('mistral-large2', prompt)
+    
     session.close()
     return response, relative_paths
 
