@@ -38,11 +38,15 @@ connection_params = {
       "warehouse": "COMPUTE_WH"
     }
 #connection = connect(**connection_params)
-#root = Root(connection)                         
-session =  Session.builder.configs(connection_params).create()
-root = Root(session)
-svc = root.databases[CORTEX_SEARCH_DATABASE].schemas[CORTEX_SEARCH_SCHEMA].cortex_search_services[CORTEX_SEARCH_SERVICE]
+#root = Root(connection)
+@st.experimental_singleton
+def get_coretex_service():
+    session =  Session.builder.configs(connection_params).create()
+    root = Root(session)
+    svc = root.databases[CORTEX_SEARCH_DATABASE].schemas[CORTEX_SEARCH_SCHEMA].cortex_search_services[CORTEX_SEARCH_SERVICE]
+    return svc
 
+svc = get_cortex_service()
 #session = get_active_session()
 
 st.set_page_config(page_title=None, page_icon=None, layout="centered", initial_sidebar_state="expanded", menu_items=None) 
@@ -284,7 +288,6 @@ def main():
     
             with st.spinner("Thinking..."):
                 response, relative_paths = answer_question(question)            
-                session.close()
                 response = response.replace("'", "")
                 message_placeholder.markdown(response)
 
@@ -300,6 +303,7 @@ def main():
 
         
         st.session_state.messages.append({"role": "assistant", "content": response})
+    #session.close()
     # Display chat messages from history on app rerun
         
 if __name__ == "__main__":
