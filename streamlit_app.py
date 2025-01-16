@@ -38,9 +38,12 @@ connection_params = {
       "schema": CORTEX_SEARCH_SCHEMA,
       "warehouse": "COMPUTE_WH"
     }
+session =  Session.builder.configs(connection_params).create()
+root = Root(session)                         
+svc = root.databases[CORTEX_SEARCH_DATABASE].schemas[CORTEX_SEARCH_SCHEMA].cortex_search_services[CORTEX_SEARCH_SERVICE]
 #connection = connect(**connection_params)
 #root = Root(connection)
-session = None
+#session = None
 #@st.cache_resource
 #def get_cortex_service():
 #    session =  Session.builder.configs(connection_params).create()
@@ -83,8 +86,8 @@ def init_messages():
 
 def get_similar_chunks_search_service(query):
     #session =  Session.builder.configs(connection_params).create()
-    root = Root(session)                         
-    svc = root.databases[CORTEX_SEARCH_DATABASE].schemas[CORTEX_SEARCH_SCHEMA].cortex_search_services[CORTEX_SEARCH_SERVICE]
+    #root = Root(session)                         
+    #svc = root.databases[CORTEX_SEARCH_DATABASE].schemas[CORTEX_SEARCH_SCHEMA].cortex_search_services[CORTEX_SEARCH_SERVICE]
     
     prompt = f"""
         Based on the QUESTION in between the <question> and </question> tags, if the user explicitly asks to search for a specific 
@@ -234,7 +237,7 @@ def answer_question(myquestion):
     prompt, relative_paths =create_prompt (myquestion)
 
     response = Complete('mistral-large2', prompt)   
-
+    session.close()
     return response, relative_paths
 
 def export_chat_history():
@@ -257,7 +260,7 @@ def main():
     st.title("CapstructAI")
     st.subheader("Your Building Code and Construction Safety Assistant")
 
-    initialize_snowpark_session()
+    #initialize_snowpark_session()
     config_options()
     init_messages()
 
