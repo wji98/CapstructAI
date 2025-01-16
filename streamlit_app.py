@@ -48,7 +48,7 @@ session = None
 #    svc = root.databases[CORTEX_SEARCH_DATABASE].schemas[CORTEX_SEARCH_SCHEMA].cortex_search_services[CORTEX_SEARCH_SERVICE]
 #    return svc
 
-svc = get_cortex_service()
+#svc = get_cortex_service()
 #session = get_active_session()
 
 st.set_page_config(page_title=None, page_icon=None, layout="centered", initial_sidebar_state="expanded", menu_items=None) 
