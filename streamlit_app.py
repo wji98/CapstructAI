@@ -37,10 +37,10 @@ connection_params = {
       "schema": CORTEX_SEARCH_SCHEMA,
       "warehouse": "COMPUTE_WH"
     }
-connection = connect(**connection_params)
-root = Root(connection)                         
+#connection = connect(**connection_params)
+#root = Root(connection)                         
 
-svc = root.databases[CORTEX_SEARCH_DATABASE].schemas[CORTEX_SEARCH_SCHEMA].cortex_search_services[CORTEX_SEARCH_SERVICE]
+#svc = root.databases[CORTEX_SEARCH_DATABASE].schemas[CORTEX_SEARCH_SCHEMA].cortex_search_services[CORTEX_SEARCH_SERVICE]
 #session =  Session.builder.configs(connection_params).create()
 #session = get_active_session()
 
@@ -66,7 +66,7 @@ def init_messages():
     if st.session_state.clear_conversation or "messages" not in st.session_state:
         st.session_state.messages = []
 
-def get_similar_chunks_search_service(query):
+def get_similar_chunks_search_service(query, svc):
     prompt = f"""
         Based on the QUESTION in between the <question> and </question> tags, if the user explicitly asks to search for a specific 
         category of documents that matches one of the categories below, then answer in one word from the options below. Simply having the 
@@ -164,11 +164,11 @@ def optimize_query(chat_history, question):
     return sumary
     
     
-def create_prompt (myquestion):
+def create_prompt (myquestion, svc):
 
     chat_history = get_chat_history()
     optimized_query = optimize_query(chat_history, myquestion)
-    prompt_context = get_similar_chunks_search_service(optimized_query)
+    prompt_context = get_similar_chunks_search_service(optimized_query, svc)
     #chat_history = ""
     
     st.sidebar.text("Optimized query:")
@@ -210,9 +210,9 @@ def create_prompt (myquestion):
 
     return prompt, relative_paths
 
-def answer_question(myquestion):
+def answer_question(myquestion, svc):
 
-    prompt, relative_paths =create_prompt (myquestion)
+    prompt, relative_paths =create_prompt (myquestion, svc)
 
     response = Complete('mistral-large2', prompt)   
 
@@ -241,6 +241,11 @@ def main():
     config_options()
     init_messages()
 
+    #connection = connect(**connection_params)
+    session =  Session.builder.configs(connection_params).create()
+    root = Root(session)                         
+    svc = root.databases[CORTEX_SEARCH_DATABASE].schemas[CORTEX_SEARCH_SCHEMA].cortex_search_services[CORTEX_SEARCH_SERVICE]
+    
     with st.expander(label='Chat History'):
         with st.container(height=500):
             for message in st.session_state.messages:
