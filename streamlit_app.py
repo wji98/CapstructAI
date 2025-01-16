@@ -39,12 +39,14 @@ connection_params = {
     }
 #connection = connect(**connection_params)
 #root = Root(connection)
-@st.cache_resource
-def get_cortex_service():
-    session =  Session.builder.configs(connection_params).create()
-    root = Root(session)
-    svc = root.databases[CORTEX_SEARCH_DATABASE].schemas[CORTEX_SEARCH_SCHEMA].cortex_search_services[CORTEX_SEARCH_SERVICE]
-    return svc
+
+session = None
+#@st.cache_resource
+#def get_cortex_service():
+#    session =  Session.builder.configs(connection_params).create()
+#    root = Root(session)
+#    svc = root.databases[CORTEX_SEARCH_DATABASE].schemas[CORTEX_SEARCH_SCHEMA].cortex_search_services[CORTEX_SEARCH_SERVICE]
+#    return svc
 
 svc = get_cortex_service()
 #session = get_active_session()
@@ -53,6 +55,10 @@ st.set_page_config(page_title=None, page_icon=None, layout="centered", initial_s
 
 debug = False
 
+@st.cache_resource
+def get_cortex_service():
+    session =  Session.builder.configs(connection_params).create()
+    
 def config_options():
 
     #categories = session.table('docs_chunks_table').select('category').distinct().collect()
@@ -73,8 +79,8 @@ def init_messages():
 
 def get_similar_chunks_search_service(query):
     #session =  Session.builder.configs(connection_params).create()
-    #root = Root(session)                         
-    #svc = root.databases[CORTEX_SEARCH_DATABASE].schemas[CORTEX_SEARCH_SCHEMA].cortex_search_services[CORTEX_SEARCH_SERVICE]
+    root = Root(session)                         
+    svc = root.databases[CORTEX_SEARCH_DATABASE].schemas[CORTEX_SEARCH_SCHEMA].cortex_search_services[CORTEX_SEARCH_SERVICE]
     
     prompt = f"""
         Based on the QUESTION in between the <question> and </question> tags, if the user explicitly asks to search for a specific 
