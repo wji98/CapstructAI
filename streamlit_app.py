@@ -39,7 +39,7 @@ connection_params = {
     }
 #connection = connect(**connection_params)
 #root = Root(connection)
-@st.experimental_singleton
+@st.cache_resource
 def get_coretex_service():
     session =  Session.builder.configs(connection_params).create()
     root = Root(session)
