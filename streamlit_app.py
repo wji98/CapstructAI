@@ -84,7 +84,7 @@ def init_messages():
     if st.session_state.clear_conversation or "messages" not in st.session_state:
         st.session_state.messages = []
 
-def get_similar_chunks_search_service(query):
+def get_similar_chunks_search_service(query, svc):
     #session =  Session.builder.configs(connection_params).create()
     #root = Root(session)                         
     #svc = root.databases[CORTEX_SEARCH_DATABASE].schemas[CORTEX_SEARCH_SCHEMA].cortex_search_services[CORTEX_SEARCH_SERVICE]
