@@ -66,7 +66,11 @@ def init_messages():
     if st.session_state.clear_conversation or "messages" not in st.session_state:
         st.session_state.messages = []
 
-def get_similar_chunks_search_service(query, svc):
+def get_similar_chunks_search_service(query):
+    session =  Session.builder.configs(connection_params).create()
+    root = Root(session)                         
+    svc = root.databases[CORTEX_SEARCH_DATABASE].schemas[CORTEX_SEARCH_SCHEMA].cortex_search_services[CORTEX_SEARCH_SERVICE]
+    
     prompt = f"""
         Based on the QUESTION in between the <question> and </question> tags, if the user explicitly asks to search for a specific 
         category of documents that matches one of the categories below, then answer in one word from the options below. Simply having the 
@@ -164,11 +168,11 @@ def optimize_query(chat_history, question):
     return sumary
     
     
-def create_prompt (myquestion, svc):
+def create_prompt (myquestion):
 
     chat_history = get_chat_history()
     optimized_query = optimize_query(chat_history, myquestion)
-    prompt_context = get_similar_chunks_search_service(optimized_query, svc)
+    prompt_context = get_similar_chunks_search_service(optimized_query)
     #chat_history = ""
     
     st.sidebar.text("Optimized query:")
@@ -210,9 +214,9 @@ def create_prompt (myquestion, svc):
 
     return prompt, relative_paths
 
-def answer_question(myquestion, svc):
+def answer_question(myquestion):
 
-    prompt, relative_paths =create_prompt (myquestion, svc)
+    prompt, relative_paths =create_prompt (myquestion)
 
     response = Complete('mistral-large2', prompt)   
 
@@ -242,9 +246,6 @@ def main():
     init_messages()
 
     #connection = connect(**connection_params)
-    session =  Session.builder.configs(connection_params).create()
-    root = Root(session)                         
-    svc = root.databases[CORTEX_SEARCH_DATABASE].schemas[CORTEX_SEARCH_SCHEMA].cortex_search_services[CORTEX_SEARCH_SERVICE]
     
     with st.expander(label='Chat History'):
         with st.container(height=500):
@@ -281,7 +282,7 @@ def main():
             question = question.replace("'","")
     
             with st.spinner("Thinking..."):
-                response, relative_paths = answer_question(question, svc)            
+                response, relative_paths = answer_question(question)            
                 response = response.replace("'", "")
                 message_placeholder.markdown(response)
 
