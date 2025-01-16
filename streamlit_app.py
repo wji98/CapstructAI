@@ -237,7 +237,7 @@ def answer_question(myquestion, svc):
     prompt, relative_paths =create_prompt (myquestion, svc)
     response = Complete('mistral-large2', prompt)
     
-    session.close()
+    #session.close()
     return response, relative_paths
 
 def export_chat_history():
