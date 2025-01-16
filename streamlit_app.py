@@ -40,7 +40,7 @@ connection_params = {
 #connection = connect(**connection_params)
 #root = Root(connection)
 @st.cache_resource
-def get_coretex_service():
+def get_cortex_service():
     session =  Session.builder.configs(connection_params).create()
     root = Root(session)
     svc = root.databases[CORTEX_SEARCH_DATABASE].schemas[CORTEX_SEARCH_SCHEMA].cortex_search_services[CORTEX_SEARCH_SERVICE]
