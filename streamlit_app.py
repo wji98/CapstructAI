@@ -284,6 +284,7 @@ def main():
     
             with st.spinner("Thinking..."):
                 response, relative_paths = answer_question(question)            
+                session.close()
                 response = response.replace("'", "")
                 message_placeholder.markdown(response)
 
@@ -300,8 +301,7 @@ def main():
         
         st.session_state.messages.append({"role": "assistant", "content": response})
     # Display chat messages from history on app rerun
-    
         
 if __name__ == "__main__":
     main()
-    session.close()
+    
