@@ -41,7 +41,7 @@ connection_params = {
 #connection = connect(**connection_params)
 #root = Root(connection)
 
-session = None
+global session
 #@st.cache_resource
 #def get_cortex_service():
 #    session =  Session.builder.configs(connection_params).create()
