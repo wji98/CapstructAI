@@ -40,8 +40,7 @@ connection_params = {
     }
 #connection = connect(**connection_params)
 #root = Root(connection)
-
-global session
+session = None
 #@st.cache_resource
 #def get_cortex_service():
 #    session =  Session.builder.configs(connection_params).create()
@@ -57,11 +56,13 @@ st.set_page_config(page_title=None, page_icon=None, layout="centered", initial_s
 debug = False
 
 def initialize_snowpark_session():
+    global session
     if 'initialized' not in st.session_state or not st.session_state.initialized:
         session =  Session.builder.configs(connection_params).create()
         st.session_state.initialized = True
     else:
         session = get_active_session()
+
 def config_options():
 
     #categories = session.table('docs_chunks_table').select('category').distinct().collect()
