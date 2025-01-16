@@ -4,6 +4,7 @@ from snowflake.snowpark import Session
 from snowflake.cortex import Complete
 from snowflake.core import Root
 from snowflake.connector import connect
+from snowflake.snowpark.context import get_active_session
 
 import pandas as pd
 import json
@@ -59,7 +60,8 @@ def initialize_snowpark_session():
     if 'initialized' not in st.session_state or not st.session_state.initialized:
         session =  Session.builder.configs(connection_params).create()
         st.session_state.initialized = True
-    
+    else:
+        session = get_active_session()
 def config_options():
 
     #categories = session.table('docs_chunks_table').select('category').distinct().collect()
