@@ -281,7 +281,7 @@ def main():
             question = question.replace("'","")
     
             with st.spinner("Thinking..."):
-                response, relative_paths = answer_question(question)            
+                response, relative_paths = answer_question(question, svc)            
                 response = response.replace("'", "")
                 message_placeholder.markdown(response)
 
