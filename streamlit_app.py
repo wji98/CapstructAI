@@ -118,9 +118,8 @@ def get_similar_chunks_search_service(query):
         ret = response.json()
     else:
         results = []
-        ret = 'null'
-
-    print(results, ret)
+        ret = ""
+        
     return results, ret
 
 def get_chat_history():
@@ -224,9 +223,11 @@ def create_prompt (myquestion):
            Answer: 
            """
     
-    json_data = json.loads(prompt_context)
-
-    relative_paths = set(item['relative_path'] for item in json_data['results'])
+    if prompt_context:
+        json_data = json.loads(prompt_context)
+        relative_paths = set(item['relative_path'] for item in json_data['results'])
+    else:
+        relative_paths = []
 
     return prompt, relative_paths
 
