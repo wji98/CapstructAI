@@ -114,14 +114,11 @@ def get_similar_chunks_search_service(query):
         st.sidebar.json(response.json())
     
     if response.results:
-            results =  [curr["chunk"] for curr in response.results]
-    else:
-        results = []
-
-    if response:
+        results =  [curr["chunk"] for curr in response.results]
         ret = response.json()
     else:
-        ret = "{}"
+        results = []
+        ret = """{}"""
         
     return results, ret
 
