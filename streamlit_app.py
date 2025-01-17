@@ -258,7 +258,8 @@ def fetch_documents(query):
         filter_obj = {"@eq":{"category": cat}}
         response = svc.search(query, COLUMNS, filter=filter_obj, limit=NUM_CHUNKS)
 
-    relative_paths = set(item['relative_path'] for item in response['results'])
+    data = json.loads(response.json())
+    relative_paths = set(item['relative_path'] for item in data['results'])
     return relative_paths
     
 def answer_question(myquestion):
