@@ -231,11 +231,43 @@ def create_prompt (myquestion):
 
     return prompt, relative_paths
 
+def fetch_documents(prompt):
+    prompt = f"""
+        Based on the QUESTION in between the <question> and </question> tags, if the user explicitly asks to search for a specific 
+        category of documents that matches one of the categories below, then answer in one word from the options below. Simply having the 
+        word in the question is not sufficient, the user must ask for an answer using the category of documents:
+        1. Safety
+        2. Building Code
+        3. Sustainability
+        4. Plumbing
+        5. Fire
+        6. Electrical
+
+        In all other cases, answer "ALL"
+        
+        <question>
+        {query}
+        </question>
+        """
+    cat = Complete('mistral-large2', prompt)
+    cat = cat.replace("'", "").strip()
+
+    if cat == "ALL":
+        response = svc.search(query, COLUMNS, limit=NUM_CHUNKS)
+    else:
+        filter_obj = {"@eq":{"category": cat}}
+        response = svc.search(query, COLUMNS, filter=filter_obj, limit=NUM_CHUNKS)
+
+    relative_paths = set(item['relative_path'] for item in response['results'])
+    return relative_paths
+    
 def answer_question(myquestion):
 
     prompt, relative_paths =create_prompt (myquestion)
     response = Complete('mistral-large2', prompt)
-    
+
+    if len(relative_paths) < 1:
+        relative_paths = fetch_documents(prompt)
     return response, relative_paths
 
 def export_chat_history():
