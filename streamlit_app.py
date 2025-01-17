@@ -6,6 +6,11 @@ from snowflake.core import Root
 from snowflake.connector import connect
 from snowflake.snowpark.context import get_active_session
 
+from trulens.core import Feedback
+from trulens.core.guardrails.base import context_filter
+from trulens.apps.custom import instrument
+from trulens.providers.cortex.provider import Cortex
+
 import pandas as pd
 import json
 
@@ -14,6 +19,7 @@ pd.set_option("max_colwidth",None)
 ### Default Values
 NUM_CHUNKS = 5 # Num-chunks provided as context. Play with this to check how it affects your accuracy
 slide_window = 7 # how many last conversations to remember. This is the slide window.
+MIN_SCORE = 0.6
 
 # service parameters
 CORTEX_SEARCH_DATABASE = "CC_QUICKSTART_CORTEX_SEARCH_DOCS"
@@ -43,45 +49,26 @@ try:
     session = get_active_session()
 except:
     session =  Session.builder.configs(connection_params).create()
-#session =  Session.builder.configs(connection_params).create()
+
 root = Root(session)                         
 svc = root.databases[CORTEX_SEARCH_DATABASE].schemas[CORTEX_SEARCH_SCHEMA].cortex_search_services[CORTEX_SEARCH_SERVICE]
-# connection = connect(**connection_params)
-# root = Root(connection)
-# session = None
-#@st.cache_resource
-#def get_cortex_service():
-#    session =  Session.builder.configs(connection_params).create()
-#    root = Root(session)
-#    svc = root.databases[CORTEX_SEARCH_DATABASE].schemas[CORTEX_SEARCH_SCHEMA].cortex_search_services[CORTEX_SEARCH_SERVICE]
-#    return svc
-
-#svc = get_cortex_service()
-#session = get_active_session()
 
 st.set_page_config(page_title=None, page_icon=None, layout="centered", initial_sidebar_state="expanded", menu_items=None) 
 
 debug = False
 
-def initialize_snowpark_session():
-    global session
-    if 'initialized' not in st.session_state or not st.session_state.initialized:
-        session =  Session.builder.configs(connection_params).create()
-        st.session_state.initialized = True
-    else:
-        session = get_active_session()
+provider = Cortex(snowpark_session=session, model_engine="llama3.1-8b")
+
+f_context_relevance_score = Feedback(
+        provider.context_relevance, name="Context Relevance"
+    )
 
 def config_options():
 
-    #categories = session.table('docs_chunks_table').select('category').distinct().collect()
-    
-    #cat_list = []
-    #for cat in categories:
-    #    cat_list.append(cat.CATEGORY)
-    
     st.sidebar.button("Start New Conversation (Clears Chat History)", key="clear_conversation", on_click=init_messages)
-    #if debug:
-    #    st.sidebar.expander("Session State").write(st.session_state)
+    
+    if debug:
+        st.sidebar.expander("Session State").write(st.session_state)
 
 def init_messages():
 
@@ -89,10 +76,9 @@ def init_messages():
     if st.session_state.clear_conversation or "messages" not in st.session_state:
         st.session_state.messages = []
 
+@instrument
+@context_filter(f_context_relevance_score, MIN_SCORE, keyword_for_prompt="query")
 def get_similar_chunks_search_service(query):
-    #session =  Session.builder.configs(connection_params).create()
-    #root = Root(session)                         
-    #svc = root.databases[CORTEX_SEARCH_DATABASE].schemas[CORTEX_SEARCH_SCHEMA].cortex_search_services[CORTEX_SEARCH_SERVICE]
     
     prompt = f"""
         Based on the QUESTION in between the <question> and </question> tags, if the user explicitly asks to search for a specific 
@@ -127,7 +113,12 @@ def get_similar_chunks_search_service(query):
     if debug:
         st.sidebar.json(response.json())
     
-    return response.json()  
+    if response.results:
+            results =  [curr["chunk"] for curr in response.results]
+    else:
+        results = []
+    
+    return results, response.model_dump_json()  
 
 def get_chat_history():
 #Get the history from the st.session_stage.messages according to the slide window parameter
@@ -195,8 +186,7 @@ def create_prompt (myquestion):
 
     chat_history = get_chat_history()
     optimized_query = optimize_query(chat_history, myquestion)
-    prompt_context = get_similar_chunks_search_service(optimized_query)
-    #chat_history = ""
+    _, prompt_context = get_similar_chunks_search_service(optimized_query)
     
     st.sidebar.text("Optimized query:")
     st.sidebar.caption(optimized_query)
@@ -242,7 +232,6 @@ def answer_question(myquestion):
     prompt, relative_paths =create_prompt (myquestion)
     response = Complete('mistral-large2', prompt)
     
-    #session.close()
     return response, relative_paths
 
 def export_chat_history():
@@ -257,22 +246,12 @@ def export_chat_history():
 def delete_conversation():
     st.session_state.messages = []
     
-def main():
-    
-    #st.title(f":speech_balloon: Chat with StructAI - Your Building Code and Construction Safety Assistant")
-    #with col3:
-    
+def main():    
     st.title("CapstructAI")
     st.subheader("Your Building Code and Construction Safety Assistant")
 
-    #initialize_snowpark_session()
     config_options()
     init_messages()
-
-    #session = Session.builder.configs(connection_params).create()
-    #root = Root(session)
-    #svc = root.databases[CORTEX_SEARCH_DATABASE].schemas[CORTEX_SEARCH_SCHEMA].cortex_search_services[CORTEX_SEARCH_SERVICE]
-    #connection = connect(**connection_params)
     
     with st.expander(label='Chat History'):
         with st.container(height=500):
@@ -295,7 +274,6 @@ def main():
         with col2:
             send_button = st.button(":arrow_forward:")
     
-    #if question := st.text_input("Enter question", placeholder="Ask me a question", label_visibility="collapsed") or st.button("Send"):
     if question or send_button:
         # Add user message to chat history
         st.session_state.messages.append({"role": "user", "content": question})
@@ -325,9 +303,6 @@ def main():
 
         
         st.session_state.messages.append({"role": "assistant", "content": response})
-    
-    #session.close()
-    # Display chat messages from history on app rerun
         
 if __name__ == "__main__":
     main()
