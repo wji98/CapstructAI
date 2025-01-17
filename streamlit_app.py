@@ -1,5 +1,4 @@
 import streamlit as st # Import python packages
-#from snowflake.snowpark.context import get_active_session
 from snowflake.snowpark import Session
 from snowflake.cortex import Complete
 from snowflake.core import Root
@@ -19,14 +18,12 @@ pd.set_option("max_colwidth",None)
 ### Default Values
 NUM_CHUNKS = 5 # Num-chunks provided as context. Play with this to check how it affects your accuracy
 slide_window = 7 # how many last conversations to remember. This is the slide window.
-MIN_SCORE = 0.6
+MIN_SCORE = 0.6 # minimum relevance score for a chunk to be accepted as context
 
 # service parameters
 CORTEX_SEARCH_DATABASE = "CC_QUICKSTART_CORTEX_SEARCH_DOCS"
 CORTEX_SEARCH_SCHEMA = "DATA"
 CORTEX_SEARCH_SERVICE = "CC_SEARCH_SERVICE_CS"
-######
-######
 
 # columns to query in the service
 COLUMNS = [
@@ -132,31 +129,6 @@ def get_chat_history():
          chat_history.append(st.session_state.messages[i])
 
     return chat_history
-
-def summarize_question_with_history(chat_history, question):
-# To get the right context, use the LLM to first summarize the previous conversation
-# This will be used to get embeddings and find similar chunks in the docs for context
-
-    prompt = f"""
-        Based on the CHAT HISTORY between the <chat_history> and </chat_history> tags and the QUESTION between the <question> and </question> tags, 
-        generate a query that extends the QUESTION with the CHAT HISTORY provided. 
-        After you are done generating the query, optimize it so that it is easier for your to understand, whether it is by writing out commonly used abbreviations, or narrowing ambiguities. 
-        The query should be in natual language. 
-        Answer with only the query. Do not add any explanation.
-        
-        <chat_history>
-        {chat_history}
-        </chat_history>
-        <question>
-        {question}
-        </question>
-        """
-    
-    sumary = Complete('mistral-large2', prompt)   
-
-    sumary = sumary.replace("'", "")
-
-    return sumary
 
 def optimize_query(chat_history, question):
     prompt = f"""
