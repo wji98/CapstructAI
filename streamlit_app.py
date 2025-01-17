@@ -117,8 +117,8 @@ def get_similar_chunks_search_service(query):
         results =  [curr["chunk"] for curr in response.results]
         ret = response.json()
     else:
-        results = []
-        ret = 'null'
+        results = [""]
+        ret = "null"
         
     return results, ret
 
