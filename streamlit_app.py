@@ -223,7 +223,7 @@ def create_prompt (myquestion):
            Answer: 
            """
     
-    if len(prompt_context) < 1:
+    if len(prompt_context) > 0:
         json_data = json.loads(prompt_context)
         relative_paths = set(item['relative_path'] for item in json_data['results'])
     else:
