@@ -231,7 +231,7 @@ def create_prompt (myquestion):
 
     return prompt, relative_paths
 
-def fetch_documents(prompt):
+def fetch_documents(query):
     prompt = f"""
         Based on the QUESTION in between the <question> and </question> tags, if the user explicitly asks to search for a specific 
         category of documents that matches one of the categories below, then answer in one word from the options below. Simply having the 
