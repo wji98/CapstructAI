@@ -19,7 +19,7 @@ pd.set_option("max_colwidth",None)
 ### Default Values
 NUM_CHUNKS = 5 # Num-chunks provided as context. Play with this to check how it affects your accuracy
 slide_window = 7 # how many last conversations to remember. This is the slide window.
-MIN_SCORE = 0.3
+MIN_SCORE = 0.6
 
 # service parameters
 CORTEX_SEARCH_DATABASE = "CC_QUICKSTART_CORTEX_SEARCH_DOCS"
