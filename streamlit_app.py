@@ -118,7 +118,7 @@ def get_similar_chunks_search_service(query):
         ret = response.json()
     else:
         results = []
-        ret = """{}"""
+        ret = 'null'
         
     return results, ret
 
