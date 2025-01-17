@@ -295,7 +295,7 @@ def main():
                 response = response.replace("'", "")
                 message_placeholder.markdown(response)
 
-                if relative_paths != "None":
+                if len(relative_paths) > 0:
                     with st.sidebar.expander("Related Documents"):
                         for path in relative_paths:
                             cmd2 = f"select GET_PRESIGNED_URL(@docs, '{path}', 360) as URL_LINK from directory(@docs)"
