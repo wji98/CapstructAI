@@ -1,0 +1,6 @@
+streamlit
+snowflake-snowpark-python
+snowflake-ml-python 
+trulens-core
+trulens-providers-cortex
+snowflake.core
