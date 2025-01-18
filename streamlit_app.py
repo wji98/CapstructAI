@@ -117,7 +117,7 @@ def get_similar_chunks_search_service(query):
         results = []
         ret = ""
         
-    return (results, ret)
+    return results, ret
 
 def get_chat_history():
 #Get the history from the st.session_stage.messages according to the slide window parameter
@@ -160,8 +160,12 @@ def create_prompt (myquestion):
 
     chat_history = get_chat_history()
     optimized_query = optimize_query(chat_history, myquestion)
-    _, prompt_context = get_similar_chunks_search_service(optimized_query)
     
+    try:
+        _, prompt_context = get_similar_chunks_search_service(optimized_query)
+    except:
+        prompt_context = ""
+        
     st.sidebar.text("Optimized query:")
     st.sidebar.caption(optimized_query)
     prompt = f"""
