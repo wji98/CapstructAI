@@ -114,10 +114,10 @@ def get_similar_chunks_search_service(query):
         results =  [curr["chunk"] for curr in response.results]
         ret = response.json()
     else:
-        results = [" "]
-        ret = " "
+        results = []
+        ret = ""
         
-    return results, ret
+    return (results, ret)
 
 def get_chat_history():
 #Get the history from the st.session_stage.messages according to the slide window parameter
