@@ -3,7 +3,7 @@
 
 Repo for a Retrieval Augmented Generation (RAG) app that references construction safety and building codes relevant to Vancouver, British Columbia, Canada.  
   
-Submission for the Rag N Roll hackathon hosted by Snowflake: `https://snowflake-mistral-rag.devpost.com/?utm_source=devpost&utm_medium=alert&utm_campaign=20241122_allinterest`  
+Submission for the Rag N Roll [hackathon](https://snowflake-mistral-rag.devpost.com/?utm_source=devpost&utm_medium=alert&utm_campaign=20241122_allinterest) hosted by Snowflake.
 
 ### Contributors:  
 Kenneth Fiawoyife - Product Owner, Project Manager  
