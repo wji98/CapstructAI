@@ -8,7 +8,7 @@ Repo for a Retrieval Augmented Generation (RAG) app that references construction
 [Project demo and presentation](https://youtu.be/4VeNttm9grU)
 
 ### Contributors:  
-Kenneth Fiawoyife - Product Owner, Project Manager  
+Kenneth Fiawoyife - Product Owner, Product Manager  
 Vincent Ji - Lead Developer  
 
 ### Repo overview:
